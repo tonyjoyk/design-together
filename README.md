@@ -167,4 +167,4 @@ Regeneration does not always pick up subtle feedback. Select the screen, describ
 | `guides/` | Design reference markdown (used at analyse time) |
 | `docs/legacy/` | Old prototypes — not used at runtime |
 
-Contributors using Cursor: see [AI_RULES.md](AI_RULES.md).
+It is recommended to ask agent to follow these instructions when making changes: [AI_RULES.md](AI_RULES.md).
