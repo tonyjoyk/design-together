@@ -2,7 +2,6 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import express from 'express';
-import cors from 'cors';
 import { callClaudeStructured } from './anthropic.js';
 import {
   ANALYSIS_SCHEMA,
@@ -49,7 +48,6 @@ function clientErrorMessage(err, fallback = GENERIC_ERROR) {
 }
 
 const app = express();
-app.use(cors());
 app.use(express.json({ limit: '20mb' }));
 
 app.post('/api/analyze', async (req, res) => {
@@ -177,6 +175,11 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-app.listen(PORT, () => {
-  console.log(`API server running on http://localhost:${PORT}`);
-});
+// On Vercel, api/index.js exports the app as a serverless function instead.
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`API server running on http://localhost:${PORT}`);
+  });
+}
+
+export default app;

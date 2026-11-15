@@ -4,6 +4,9 @@ async function postJson(url, body) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
+  if (res.status === 413) {
+    throw new Error('Upload too large — use fewer or smaller files.');
+  }
   const data = await res.json();
   if (!res.ok) {
     throw new Error(data.error || `Request failed (${res.status})`);

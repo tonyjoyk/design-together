@@ -115,6 +115,23 @@ Serves the built UI and API from one process (`NODE_ENV=production`).
 
 ---
 
+## Deploy to Vercel (private, passcode-protected)
+
+The live app asks for a passcode before it shows anything, so only people you share it with can use your Anthropic credit.
+
+1. Sign in at [vercel.com](https://vercel.com) with GitHub. Give the Vercel GitHub app access to this repo only.
+2. **Add New → Project** and import this repo. The Vite preset is detected automatically.
+3. Before the first deploy, add these **Environment Variables** (Production and Preview):
+   - `ANTHROPIC_API_KEY`: use a key made just for this app, with a monthly spend limit set in the Anthropic Console.
+   - `APP_PASSCODE`: a long passcode, for example four random words.
+4. Deploy. Every push to `main` redeploys.
+
+Opening the link shows the browser's login box. Type any username and the passcode. To change the passcode, update `APP_PASSCODE` in Vercel and redeploy.
+
+How it works: `middleware.js` checks the passcode on every request, `api/index.js` runs the Express server as a Vercel function, and `vercel.json` routes `/api/*` to it. Local `npm run dev` does not ask for a passcode.
+
+---
+
 ## Known issues and limitations
 
 ### Limited UI pattern coverage
@@ -166,5 +183,6 @@ Regeneration does not always pick up subtle feedback. Select the screen, describ
 | `src/prompts/` | LLM prompts |
 | `guides/` | Design reference markdown (used at analyse time) |
 | `docs/legacy/` | Old prototypes — not used at runtime |
+| `middleware.js`, `api/`, `vercel.json` | Vercel hosting and passcode check |
 
 It is recommended to ask agent to follow these instructions when making changes: [AI_RULES.md](AI_RULES.md).

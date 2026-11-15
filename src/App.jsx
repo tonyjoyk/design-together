@@ -63,17 +63,37 @@ function ChipGroup({ label, options, value, onValue, otherText, onOtherText }) {
     </div>
   );
 }
+// Shrinks screenshots so uploads stay under the host's 4.5 MB request limit.
+const MAX_IMAGE_EDGE = 1568;
+function downscaleImage(file) {
+  return new Promise((resolve, reject) => {
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const scale = Math.min(1, MAX_IMAGE_EDGE / Math.max(img.width, img.height));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.round(img.width * scale);
+      canvas.height = Math.round(img.height * scale);
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.85));
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('Could not read image')); };
+    img.src = url;
+  });
+}
+
 function FileUploadZone({ screenshots, onAdd, onRemove }) {
   const ref = useRef();
   function handleFiles(files) {
     Array.from(files).forEach((file) => {
       if (!file.type.startsWith('image/')) return;
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const dataUrl = e.target.result;
-        onAdd({ name: file.name, base64: dataUrl.split(',')[1], mediaType: file.type, preview: dataUrl });
-      };
-      reader.readAsDataURL(file);
+      downscaleImage(file).then((dataUrl) => {
+        onAdd({ name: file.name, base64: dataUrl.split(',')[1], mediaType: 'image/jpeg', preview: dataUrl });
+      }).catch(() => {});
     });
   }
   function onDrop(e) { e.preventDefault(); handleFiles(e.dataTransfer.files); }
