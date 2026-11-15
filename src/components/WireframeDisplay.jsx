@@ -26,6 +26,9 @@ export default function WireframeDisplay({ svg, size = 'thumb' }) {
     return `<svg${cleaned} width="100%" style="display:block;height:auto;">`;
   });
 
+  // Rendered as an image so any script or event handler in AI-generated SVG never runs.
+  const src = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgHtml)}`;
+
   return (
     <div
       style={{
@@ -33,7 +36,8 @@ export default function WireframeDisplay({ svg, size = 'thumb' }) {
         maxWidth: '100%',
         lineHeight: 0,
       }}
-      dangerouslySetInnerHTML={{ __html: svgHtml }}
-    />
+    >
+      <img src={src} alt="Wireframe" style={{ display: 'block', width: '100%', height: 'auto' }} />
+    </div>
   );
 }
